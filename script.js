@@ -2,7 +2,7 @@ var place;
 $("#submit").on("click", runAjax);
 
 function runAjax(){
-    place = $("#search").val();
+    place = $("#search").val().trim();
     var queryUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + place + "&units=imperial&appid=65c2d57d5385fc26b3814a24c68ff22b";
     $.ajax({
         url: queryUrl,
@@ -21,6 +21,7 @@ function runAjax(){
         var y = response.coord.lon;
         getUV(x,y);
         forecast(place);
+        doSearch(place);
     });
 }
 
@@ -61,3 +62,38 @@ function forecast(place){
         $("#five").attr("src", "http://openweathermap.org/img/wn/" + icon5 + "@2x.png");
     });
 }
+
+function doSearch(place){
+    var place = $("#search").val();
+    var store = [];
+   localStorage.setItem(store, JSON.stringify(place));
+   var recent = JSON.parse(localStorage.getItem(store));
+   console.log(recent);
+   store.push(recent);
+   for (var i = 0; i < store.length; i++){
+       var b = $("<button>")
+       b.text(store[i]);
+       $("body").append(b);
+    }
+    b.on("click", function home(){
+        var queryUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + recent + "&units=imperial&appid=65c2d57d5385fc26b3814a24c68ff22b";
+        $.ajax({
+            url: queryUrl,
+            method: "GET"
+        }).then(function(response){
+            console.log(response);
+            var icon = response.weather["0"].icon;
+            $("#results").css("visibility", "visible");
+            $("#name").text(response.name + ": " + response.weather["0"].description);
+            $("#date").text(moment().format('dddd, MMMM Do'));
+            $("#temp").text(response.main.temp + "°F");
+            $("#humid").text(response.main.humidity + "% humidity");
+            $("#wind").text("wind speed: " + response.wind.speed);
+            $("#icon").attr("src", "http://openweathermap.org/img/wn/" + icon + "@2x.png");
+            $("#forecast").css("visibility", "hidden");
+            
+        });
+    });
+
+};
+
