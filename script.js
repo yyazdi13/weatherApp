@@ -1,8 +1,13 @@
+var store = [];
 var place;
 $("#submit").on("click", runAjax);
 
+
 function runAjax(){
     place = $("#search").val().trim();
+    if (store.length < 5){
+    store.push(place);
+    }
     var queryUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + place + "&units=imperial&appid=65c2d57d5385fc26b3814a24c68ff22b";
     $.ajax({
         url: queryUrl,
@@ -21,7 +26,7 @@ function runAjax(){
         var y = response.coord.lon;
         getUV(x,y);
         forecast(place);
-        doSearch(place);
+        doSearch();
     });
 }
 
@@ -63,20 +68,20 @@ function forecast(place){
     });
 }
 
-function doSearch(place){
-    var place = $("#search").val();
-    var store = [];
-   localStorage.setItem(store, JSON.stringify(place));
-   var recent = JSON.parse(localStorage.getItem(store));
+function doSearch(){
+    localStorage.setItem('last', store);
+    var recent = localStorage.getItem('last');
    console.log(recent);
-   store.push(recent);
    for (var i = 0; i < store.length; i++){
-       var b = $("<button>")
-       b.text(store[i]);
-       $("body").append(b);
+       var b = $("<button>");
+      b.text(store[i]);   
     }
+    if ([i] < 5){
+    $("body").prepend(b);
+    }
+
     b.on("click", function home(){
-        var queryUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + recent + "&units=imperial&appid=65c2d57d5385fc26b3814a24c68ff22b";
+        var queryUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + b.text() + "&units=imperial&appid=65c2d57d5385fc26b3814a24c68ff22b";
         $.ajax({
             url: queryUrl,
             method: "GET"
